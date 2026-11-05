@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: sa-asesor-plataforma
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # se carga a mano en el dashboard de Render
+      - key: ACCESS_KEY
+        sync: false          # clave que se comparte con los usuarios de la maqueta
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-5-5
+      - key: CHAT_RATE_PER_MINUTE
+        value: "10"
+      - key: AGENT_MAX_STEPS
+        value: "12"

@@ -1,0 +1,222 @@
+{
+  "meta": {
+    "name": "Perfil de plataforma IT",
+    "organization": "Colegio San Andrés",
+    "version": "0.2-borrador",
+    "owner": "Área de IT",
+    "notes": "BORRADOR. Valores propuestos para revisión de IT; no son definiciones aprobadas."
+  },
+  "cloud": "azure",
+  "currency": "USD",
+  "hoursPerMonth": 730,
+
+  "regions": {
+    "allowed": ["brazilsouth", "eastus2"],
+    "primary": "brazilsouth",
+    "dr": "eastus2"
+  },
+
+  "standards": {
+    "preferredOs": "linux",
+    "principles": [
+      "PaaS antes que IaaS: usar servicios administrados salvo justificación",
+      "Ambientes no productivos se apagan fuera de horario",
+      "Todo recurso con tags obligatorios",
+      "Sin credenciales embebidas: Managed Identity y Key Vault",
+      "Todo recurso productivo se crea por IaC"
+    ],
+    "forbidden": [
+      "Bases de datos instaladas en VM sin aprobación de IT",
+      "IP pública en VMs productivas",
+      "Servicios en regiones fuera de la lista permitida",
+      "Secretos en código, repositorios o app settings en texto plano"
+    ]
+  },
+
+  "appSizing": {
+    "description": "Clasificación de la aplicación para dimensionar cómputo y base de datos. Se toma la clase más alta que corresponda por cualquiera de los dos criterios.",
+    "classes": {
+      "chica":   { "label": "Chica",   "concurrentUsersMax": 50,   "dataGbMax": 20,   "example": "Herramienta interna de un área" },
+      "mediana": { "label": "Mediana", "concurrentUsersMax": 500,  "dataGbMax": 250,  "example": "Sistema de gestión de un nivel o sede" },
+      "grande":  { "label": "Grande",  "concurrentUsersMax": null, "dataGbMax": null, "example": "Plataforma de toda la comunidad educativa (ej. LMS)" }
+    }
+  },
+
+  "databases": {
+    "defaultEngine": "postgresql",
+    "engines": {
+      "postgresql": { "label": "PostgreSQL", "service": "Azure Database for PostgreSQL Flexible Server", "priceServiceName": "Azure Database for PostgreSQL", "useWhen": "Default para desarrollos nuevos y productos open source", "requiresApproval": false },
+      "sqlserver":  { "label": "SQL Server", "service": "Azure SQL Database", "priceServiceName": "SQL Database", "useWhen": "Desarrollos .NET con dependencia de T-SQL o producto que lo exige", "requiresApproval": false },
+      "mysql":      { "label": "MySQL", "service": "Azure Database for MySQL Flexible Server", "priceServiceName": "Azure Database for MySQL", "useWhen": "Solo si el producto de terceros lo exige", "requiresApproval": true },
+      "cosmosdb":   { "label": "Cosmos DB", "service": "Azure Cosmos DB", "priceServiceName": "Azure Cosmos DB", "useWhen": "Datos documentales a gran escala; evaluar con IT", "requiresApproval": true }
+    },
+    "sizing": {
+      "chica": {
+        "allowedTiers": ["Burstable", "GeneralPurpose"],
+        "postgresql": "Burstable B1ms a B2s",
+        "sqlserver": "General Purpose serverless, 1 a 2 vCores",
+        "backupRetentionDays": 7,
+        "readReplica": false
+      },
+      "mediana": {
+        "allowedTiers": ["GeneralPurpose"],
+        "postgresql": "General Purpose D2ds_v5 a D4ds_v5",
+        "sqlserver": "General Purpose provisionado, 2 a 4 vCores",
+        "backupRetentionDays": 14,
+        "readReplica": false
+      },
+      "grande": {
+        "allowedTiers": ["GeneralPurpose", "MemoryOptimized", "BusinessCritical"],
+        "postgresql": "General Purpose D8ds_v5 o más; Memory Optimized si el uso de memoria lo justifica",
+        "sqlserver": "General Purpose 8 vCores o más; Business Critical solo con criticidad crítica",
+        "backupRetentionDays": 35,
+        "readReplica": true
+      }
+    },
+    "privateEndpointIn": ["prod"],
+    "rules": [
+      "Siempre PaaS: no se instalan motores en VM",
+      "Una base por aplicación; no compartir servidores entre aplicaciones críticas",
+      "Autenticación con Entra ID; sin usuarios compartidos",
+      "Alta disponibilidad zonal según la criticidad de la aplicación"
+    ]
+  },
+
+  "platformStack": {
+    "appliesTo": "Desarrollos propios. Los productos de terceros se evalúan por su propio stack.",
+    "frontendWeb": {
+      "label": "Front web",
+      "preferred": [ { "id": "typescript-react", "label": "TypeScript + React" } ],
+      "allowed": [ { "id": "typescript-angular", "label": "TypeScript + Angular" } ],
+      "requiresApproval": [ { "id": "javascript", "label": "JavaScript sin tipado" } ],
+      "hosting": ["Azure Static Web Apps", "Azure App Service"]
+    },
+    "backend": {
+      "label": "Back end / APIs",
+      "preferred": [ { "id": "dotnet", "label": "C# / .NET (LTS vigente)" } ],
+      "allowed": [
+        { "id": "python", "label": "Python (datos, IA, automatización)" },
+        { "id": "node", "label": "TypeScript / Node.js (LTS)" }
+      ],
+      "requiresApproval": [
+        { "id": "java", "label": "Java" },
+        { "id": "php", "label": "PHP" }
+      ],
+      "hosting": ["Azure Container Apps", "Azure App Service", "Azure Functions (eventos y tareas programadas)"]
+    },
+    "mobile": {
+      "label": "Mobile",
+      "preferred": [ { "id": "react-native", "label": "React Native + TypeScript" } ],
+      "allowed": [ { "id": "maui", "label": ".NET MAUI" } ],
+      "requiresApproval": [ { "id": "native", "label": "Nativo (Swift / Kotlin)" } ],
+      "hosting": ["Consume APIs solo a través de API Management"]
+    }
+  },
+
+  "apiManagement": {
+    "service": "Azure API Management",
+    "requiredFor": {
+      "mobile": "La API la consume una app mobile",
+      "terceros": "La API la consumen terceros o es pública",
+      "otras_apps": "La API la consume más de una aplicación"
+    },
+    "model": "Una instancia compartida por ambiente, administrada por IT; cada aplicación publica sus APIs como producto",
+    "tiersByEnvironment": {
+      "dev":  ["Developer", "Consumption"],
+      "qa":   ["Developer", "Consumption"],
+      "prod": ["Basic v2", "Standard v2"]
+    },
+    "policies": [
+      "Validación de JWT emitido por Entra ID",
+      "Rate limit por suscripción",
+      "Versionado en la URL (/v1, /v2)",
+      "CORS explícito, nunca *"
+    ]
+  },
+
+  "secrets": {
+    "service": "Azure Key Vault",
+    "required": true,
+    "model": "Un Key Vault por aplicación y ambiente",
+    "tier": "Standard",
+    "premiumRequiresApproval": true,
+    "accessModel": "Azure RBAC; las aplicaciones acceden con Managed Identity",
+    "rotationDays": 90,
+    "softDeleteRetentionDays": 90,
+    "purgeProtectionIn": ["prod"],
+    "privateEndpointIn": ["prod"],
+    "rules": [
+      "Prohibido guardar secretos en código, repositorios o app settings en texto plano",
+      "Certificados TLS administrados en Key Vault"
+    ]
+  },
+
+  "identity": {
+    "provider": "Microsoft Entra ID",
+    "rules": [
+      "SSO con Entra ID para usuarios internos",
+      "Managed Identity para comunicación entre servicios",
+      "MFA obligatorio para cuentas administradoras"
+    ]
+  },
+
+  "networking": {
+    "publicExposure": "Apps públicas de criticidad alta o crítica detrás de Front Door con WAF",
+    "privateEndpointsIn": ["prod"]
+  },
+
+  "observability": {
+    "service": "Application Insights + Log Analytics",
+    "logRetentionDays": { "dev": 30, "qa": 30, "prod": 90 },
+    "alerts": "Disponibilidad y errores 5xx en producción"
+  },
+
+  "delivery": {
+    "iac": "Bicep",
+    "cicd": "GitHub Actions",
+    "rules": ["Todo recurso productivo se crea por IaC", "Despliegues a prod solo desde pipeline con aprobación"]
+  },
+
+  "environments": {
+    "dev": {
+      "maxMonthlyUsd": 300,
+      "allowedVmSeries": ["B"],
+      "maxVcpuPerVm": 4,
+      "allowPublicIp": true,
+      "schedule": "Apagado fuera de horario (L-V 8 a 20)",
+      "commitment": "Sin compromiso"
+    },
+    "qa": {
+      "maxMonthlyUsd": 600,
+      "allowedVmSeries": ["B", "D"],
+      "maxVcpuPerVm": 8,
+      "allowPublicIp": false,
+      "schedule": "Apagado fuera de horario (L-V 8 a 20)",
+      "commitment": "Sin compromiso"
+    },
+    "prod": {
+      "maxMonthlyUsd": 3000,
+      "allowedVmSeries": ["D", "E", "F"],
+      "maxVcpuPerVm": 32,
+      "allowPublicIp": false,
+      "schedule": "24x7",
+      "commitment": "Savings plan a 1 año para cargas 24x7 estables"
+    }
+  },
+
+  "criticality": {
+    "baja":    { "rpoHours": 24,   "rtoHours": 72, "minComputeInstances": 1, "requireAvailabilityZones": false, "requireBackup": false, "requireDrRegion": false },
+    "media":   { "rpoHours": 4,    "rtoHours": 24, "minComputeInstances": 1, "requireAvailabilityZones": false, "requireBackup": true,  "requireDrRegion": false },
+    "alta":    { "rpoHours": 1,    "rtoHours": 4,  "minComputeInstances": 2, "requireAvailabilityZones": true,  "requireBackup": true,  "requireDrRegion": false },
+    "critica": { "rpoHours": 0.25, "rtoHours": 1,  "minComputeInstances": 2, "requireAvailabilityZones": true,  "requireBackup": true,  "requireDrRegion": true }
+  },
+
+  "tagging": {
+    "required": ["Application", "Environment", "Owner", "CostCenter"]
+  },
+
+  "naming": {
+    "pattern": "{tipo}-{app}-{env}-{region}-{nn}",
+    "example": "kv-moodle-prod-brs-01"
+  }
+}

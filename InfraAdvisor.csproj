@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>InfraAdvisor</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="profile/**" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="prompts/**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

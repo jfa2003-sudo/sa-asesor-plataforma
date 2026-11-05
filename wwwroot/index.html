@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asesor de Plataforma · St. Andrew's IT</title>
+<link rel="icon" href="/brand/crest.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+/* ===== Identidad St. Andrew's Scots School ===== */
+/* Azul y crema medidos sobre el logo institucional */
+:root{
+  --brand:#00478E; --brand-ink:#00356B; --brand-soft:#E6EEF6;
+  --cream:#F7F4ED; --cream-2:#EFEADF; --cream-line:#E3DBCA;
+  --bg:#FBFAF6; --panel:#FFFFFF; --ink:#16212E; --muted:#5E6B78; --line:#E6E0D3;
+  --ok:#1E7A4C; --warn:#A86A00; --fail:#B42318;
+  --user-bubble:#EEF2F7;
+  --side-bg:var(--cream); --side-ink:var(--ink); --side-card:#FFFFFF;
+  --serif:"Source Serif 4", Georgia, serif;
+  --sans:"Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1520; --panel:#111F2E; --ink:#E6ECF2; --muted:#93A3B5; --line:#22344A;
+    --brand-soft:#16304D; --user-bubble:#172A40; --cream-line:#22344A;
+    --side-bg:#0E1B2A; --side-ink:#E6ECF2; --side-card:#132436;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1520; --panel:#111F2E; --ink:#E6ECF2; --muted:#93A3B5; --line:#22344A;
+  --brand-soft:#16304D; --user-bubble:#172A40; --cream-line:#22344A;
+  --side-bg:#0E1B2A; --side-ink:#E6ECF2; --side-card:#132436;
+}
+.logo-dark{display:none !important}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .logo-light{display:none !important}:root:not([data-theme="light"]) .logo-dark{display:block !important}}
+:root[data-theme="dark"] .logo-light{display:none !important} :root[data-theme="dark"] .logo-dark{display:block !important}
+.hero .crest{margin-left:auto;margin-right:auto}
+:root[data-theme="dark"] :is(.hero .eyebrow,.badge-demo){color:#9CC3EA;border-color:#9CC3EA}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) :is(.hero .eyebrow,.badge-demo){color:#9CC3EA;border-color:#9CC3EA}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:288px 1fr;height:100dvh}
+
+/* ===== Sidebar ===== */
+.side{background:var(--side-bg);color:var(--side-ink);display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--cream-line)}
+.brand{padding:22px 20px 6px}
+.brand img{height:40px;width:auto;display:block}
+.brand .app-name{margin-top:12px;font:700 17px/1.2 var(--serif);color:var(--brand)}
+.brand .app-sub{font-size:12px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+:root[data-theme="dark"] .brand .app-name{color:#9CC3EA}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brand .app-name{color:#9CC3EA}}
+.new{margin:16px 16px 14px;display:flex;align-items:center;gap:8px;justify-content:center;background:var(--brand);border:0;color:#fff;border-radius:10px;padding:10px 12px;font-weight:600}
+.new:hover{background:var(--brand-ink)}
+.side h3{margin:6px 20px 8px;font-size:11px;letter-spacing:1.1px;text-transform:uppercase;color:var(--brand);font-weight:700}
+:root[data-theme="dark"] .side h3{color:#9CC3EA}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .side h3{color:#9CC3EA}}
+.profile{overflow:auto;padding:0 16px 16px;flex:1;min-height:0}
+.pcard{background:var(--side-card);border:1px solid var(--cream-line);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+.pcard .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-weight:600}
+.pcard table{width:100%;border-collapse:collapse}
+.pcard td{padding:2px 0;vertical-align:top}
+.pcard td:last-child{text-align:right;color:var(--muted)}
+.pcard .stk td:last-child{max-width:140px}
+.pcard.link{display:block;color:var(--brand);text-decoration:none;font-weight:600;text-align:center;border-style:dashed}
+.pcard.link:hover{background:var(--brand-soft)}
+.chip{display:inline-block;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:1px 8px;margin:2px 4px 2px 0;font-size:12px;font-weight:600}
+:root[data-theme="dark"] .chip{color:#cfe0f2}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip{color:#cfe0f2}}
+.side .foot{padding:12px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--cream-line)}
+.badge-demo{display:inline-block;border:1px solid var(--brand);color:var(--brand);border-radius:4px;padding:0 6px;font-size:10px;font-weight:700;letter-spacing:.4px;margin-left:6px;vertical-align:middle}
+
+/* ===== Main ===== */
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.topbar{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--side-bg);border-bottom:1px solid var(--cream-line)}
+.topbar img{height:28px;width:auto}
+.topbar .sp{flex:1}
+.topbar button{background:transparent;border:1px solid var(--cream-line);color:var(--brand);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600}
+.scroll{flex:1;overflow:auto;min-height:0}
+.col{max-width:780px;margin:0 auto;padding:28px 24px 24px}
+
+.hero{padding:9vh 0 24px;text-align:center}
+.hero .crest{height:64px;width:auto;margin-bottom:12px;display:block}
+.hero .eyebrow{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brand);font-weight:700;margin-bottom:6px}
+.hero h1{font:700 clamp(26px,4vw,36px)/1.2 var(--serif);margin:0 0 8px;color:var(--ink)}
+.hero p{color:var(--muted);margin:0 auto;max-width:520px}
+.hero .rule{width:56px;height:3px;background:var(--brand);margin:16px auto 0;border-radius:2px}
+.examples{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:28px;text-align:left}
+.examples button{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:10px;padding:12px 14px;color:var(--ink);text-align:left;font-size:14px;line-height:1.4}
+.examples button:hover{background:var(--brand-soft)}
+.examples button span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+
+.msg{margin:0 0 26px}
+.msg.user{display:flex;justify-content:flex-end}
+.msg.user .bubble{background:var(--user-bubble);border-radius:18px 18px 4px 18px;padding:10px 16px;max-width:85%;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.bot{display:grid;grid-template-columns:38px 1fr;gap:12px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--cream);border:1px solid var(--cream-line);display:grid;place-items:center;overflow:hidden}
+.avatar img{width:32px;height:auto}
+.body{min-width:0}
+.content{overflow-wrap:anywhere}
+.content h1,.content h2,.content h3,.content h4{font-family:var(--serif);color:var(--brand);line-height:1.25;margin:18px 0 8px}
+:root[data-theme="dark"] .content :is(h1,h2,h3,h4){color:#9CC3EA}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .content :is(h1,h2,h3,h4){color:#9CC3EA}}
+.content h2{font-size:20px}.content h3{font-size:17px}.content h4{font-size:15.5px}
+.content p{margin:0 0 10px}
+.content ul,.content ol{margin:0 0 12px;padding-left:22px}
+.content li{margin:3px 0}
+.content code{background:var(--brand-soft);border-radius:5px;padding:1px 5px;font-size:.9em}
+.content .tw{overflow-x:auto;margin:6px 0 14px;border:1px solid var(--line);border-radius:10px}
+.content table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel)}
+.content th{background:var(--brand);color:#fff;text-align:left;font-weight:600;padding:8px 10px;white-space:nowrap}
+.content td{padding:7px 10px;border-top:1px solid var(--line)}
+.content tr:nth-child(even) td{background:color-mix(in srgb, var(--cream) 60%, transparent)}
+:root[data-theme="dark"] .content tr:nth-child(even) td{background:transparent}
+.content strong{font-weight:700}
+
+/* pasos del agente */
+.steps{border:1px solid var(--line);background:var(--panel);border-radius:12px;margin:0 0 12px;font-size:14px}
+.steps summary{list-style:none;cursor:pointer;padding:9px 12px;display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600}
+.steps summary::-webkit-details-marker{display:none}
+.steps summary .chev{margin-left:auto;transition:transform .15s}
+.steps[open] summary .chev{transform:rotate(90deg)}
+.steps ol{list-style:none;margin:0;padding:0 12px 10px}
+.steps li{display:grid;grid-template-columns:18px 1fr;gap:8px;padding:6px 0;border-top:1px dashed var(--line)}
+.steps li:first-child{border-top:0}
+.steps .st{width:14px;height:14px;margin-top:4px;border-radius:50%;border:2px solid var(--muted)}
+.steps .run .st{border-color:var(--brand);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps .ok .st{border-color:var(--ok);background:var(--ok)}
+.steps .err .st{border-color:var(--fail);background:var(--fail)}
+.steps .lbl{font-weight:600;color:var(--ink)}
+.steps .sum{color:var(--muted);font-size:13px}
+.steps .note{color:var(--muted);font-style:italic;font-size:13px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.thinking{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin:4px 0}
+.dots span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:var(--brand);animation:b 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+/* documento */
+.doccard{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-left:4px solid var(--brand);background:var(--panel);border-radius:12px;padding:12px 14px;margin:6px 0 12px}
+.doccard .ic{width:38px;height:46px;border-radius:6px;background:var(--brand);color:#fff;display:grid;place-items:center;font:700 11px var(--sans);letter-spacing:.5px;flex:none}
+.doccard .t{font-weight:600;line-height:1.3}
+.doccard .s{color:var(--muted);font-size:13px}
+.doccard .acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:9px;padding:7px 12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid var(--brand);color:var(--brand);background:transparent}
+.btn.primary{background:var(--brand);color:#fff}
+:root[data-theme="dark"] .btn:not(.primary){color:#cfe0f2;border-color:#6FA3D8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn:not(.primary){color:#cfe0f2;border-color:#6FA3D8}}
+.usage{color:var(--muted);font-size:12px;margin-top:6px}
+.error{color:var(--fail);background:color-mix(in srgb,var(--fail) 8%,transparent);border:1px solid color-mix(in srgb,var(--fail) 30%,transparent);border-radius:10px;padding:10px 12px;font-size:14px}
+
+/* composer */
+.composer-wrap{padding:0 24px 18px;background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.composer{max-width:780px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(0,71,142,.06),0 8px 24px rgba(0,71,142,.06);padding:10px 10px 10px 16px;display:flex;align-items:flex-end;gap:8px}
+.composer:focus-within{border-color:var(--brand)}
+.composer textarea{flex:1;border:0;outline:0;resize:none;background:transparent;color:var(--ink);font:16px/1.5 var(--sans);max-height:220px;min-height:26px;padding:6px 0}
+.send{width:38px;height:38px;border-radius:11px;border:0;background:var(--brand);color:#fff;display:grid;place-items:center;flex:none}
+.send:disabled{opacity:.35;cursor:not-allowed}
+.disclaimer{max-width:780px;margin:8px auto 0;text-align:center;color:var(--muted);font-size:12px}
+
+dialog{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--panel);color:var(--ink);max-width:380px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(0,30,60,.5)}
+dialog img{height:34px;width:auto;margin-bottom:12px}
+dialog h2{font:700 19px var(--serif);margin:0 0 6px;color:var(--brand)}
+dialog p{color:var(--muted);font-size:14px;margin:0 0 14px}
+dialog input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-bottom:14px}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .side.open{display:flex;position:fixed;inset:0 18% 0 0;z-index:20;box-shadow:0 0 0 100vmax rgba(0,30,60,.45)}
+  .topbar{display:flex}
+  .col{padding:20px 16px}
+  .composer-wrap{padding:0 16px 14px}
+  .examples{grid-template-columns:1fr}
+  .hero{padding-top:5vh}
+  .doccard{flex-wrap:wrap}.doccard .acts{margin-left:0;width:100%;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <img class="logo-light" src="/brand/logo.svg" alt="St. Andrew's Scots School"><img class="logo-dark" src="/brand/logo-white.svg" alt="St. Andrew's Scots School">
+      <div class="app-name">Asesor de Plataforma</div>
+      <div class="app-sub">Área de IT</div>
+    </div>
+    <button class="new" id="newChat" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Nueva consulta
+    </button>
+    <h3>Perfil activo</h3>
+    <div class="profile" id="profile"><div class="pcard">Cargando…</div></div>
+    <div class="foot" id="modelInfo">—</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <button type="button" id="menuBtn" aria-label="Menú">☰</button>
+      <img style="height:28px" class="logo-light" src="/brand/logo.svg" alt="St. Andrew's Scots School"><img style="height:28px" class="logo-dark" src="/brand/logo-white.svg" alt="St. Andrew's Scots School"><span class="sp"></span>
+      <button type="button" id="newChatTop">Nueva</button>
+    </div>
+    <div class="scroll" id="scroll">
+      <div class="col" id="thread"></div>
+    </div>
+    <div class="composer-wrap">
+      <form class="composer" id="form">
+        <textarea id="input" rows="1" placeholder="Describí qué necesitás: aplicación, ambiente, usuarios, criticidad…" autocomplete="off"></textarea>
+        <button class="send" id="send" type="submit" aria-label="Enviar" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </form>
+      <div class="disclaimer">Recomendaciones sujetas a revisión de IT. Precios de lista de Azure en USD.</div>
+    </div>
+  </main>
+</div>
+
+<dialog id="keyDlg">
+  <form method="dialog" id="keyForm">
+    <img src="/brand/logo.svg" alt="St. Andrew's Scots School">
+    <h2>Acceso</h2>
+    <p>Ingresá la clave de acceso que te dio el área de IT.</p>
+    <input id="keyInput" type="password" autocomplete="off" required>
+    <button class="btn primary" type="submit">Ingresar</button>
+  </form>
+</dialog>
+
+<template id="heroTpl">
+  <section class="hero">
+    <img class="crest logo-light" src="/brand/crest.svg" alt=""><img class="crest logo-dark" src="/brand/crest-white.svg" alt="">
+    <div class="eyebrow">Área de IT · Asesor de Plataforma</div>
+    <h1>¿Qué plataforma necesitás?</h1>
+    <p>Contame la necesidad y te propongo una arquitectura en Azure alineada a los lineamientos de IT, con costos y un documento para revisión.</p>
+    <div class="rule"></div>
+    <div class="examples">
+      <button type="button" data-q="Necesitamos hostear Moodle para unos 1.500 alumnos en producción. Criticidad alta, uso pico en horario escolar.">Moodle en producción<span>1.500 alumnos · criticidad alta</span></button>
+      <button type="button" data-q="Quiero un ambiente de desarrollo para una API interna en .NET con base PostgreSQL. Solo se usa en horario laboral.">Ambiente dev para una API<span>.NET + PostgreSQL · horario laboral</span></button>
+      <button type="button" data-q="Necesitamos un servidor para el sistema de biblioteca, hoy corre en Windows Server on-premise. ¿Cómo lo llevamos a Azure?">Migrar un sistema Windows<span>Biblioteca · on-premise → Azure</span></button>
+      <button type="button" data-q="¿Qué opciones tengo para guardar backups de archivos administrativos, unos 2 TB, con retención de 1 año?">Almacenamiento de backups<span>2 TB · retención 1 año</span></button>
+    </div>
+  </section>
+</template>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const thread = $('#thread'), scroll = $('#scroll'), input = $('#input'), send = $('#send');
+  const LS_CHAT = 'sa-infra-chat', LS_KEY = 'sa-infra-key';
+  const store = {
+    get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+    set(k,v){ try { localStorage.setItem(k,v); } catch {} },
+    del(k){ try { localStorage.removeItem(k); } catch {} }
+  };
+
+  let config = { requiresKey:false };
+  let accessKey = store.get(LS_KEY) || '';
+  let history = [];          // [{role, content, steps?, doc?, usage?}]
+  let busy = false;
+
+  // ---------- Markdown ----------
+  const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // El servidor devuelve el HTML ya sanitizado (MarkdownLite). Fallback: texto plano.
+  function md(text, html){
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html || ('<p>' + esc(text || '').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>') + '</p>');
+    tmp.querySelectorAll('table').forEach(t => { const w = document.createElement('div'); w.className='tw'; t.replaceWith(w); w.appendChild(t); });
+    return tmp.innerHTML;
+  }
+
+  // ---------- Perfil ----------
+  async function loadProfile(){
+    try{
+      const p = await api('/api/profile').then(r => r.json());
+      const envRows = Object.entries(p.environments || {}).map(([k,v]) =>
+        `<tr><td>${esc(k)}</td><td>USD ${Number(v.maxMonthlyUsd).toLocaleString('es-AR')}/mes</td></tr>`).join('');
+      const critRows = Object.entries(p.criticality || {}).map(([k,v]) =>
+        `<tr><td>${esc(k)}</td><td>RPO ${v.rpoHours}h · RTO ${v.rtoHours}h</td></tr>`).join('');
+      const sizeRows = Object.entries(p.appSizing?.classes || {}).map(([k,v]) =>
+        `<tr><td>${esc(v.label||k)}</td><td>${v.concurrentUsersMax ? `≤ ${v.concurrentUsersMax} usr · ≤ ${v.dataGbMax} GB` : 'más que mediana'}</td></tr>`).join('');
+      const engines = p.databases?.engines || {};
+      const dbRows = Object.entries(p.databases?.sizing || {}).map(([k,v]) =>
+        `<tr><td>${esc(k)}</td><td>${(v.allowedTiers||[]).map(esc).join(' · ')}</td></tr>`).join('');
+      const stackRows = Object.values(p.platformStack || {}).filter(v => v && v.preferred).map(v =>
+        `<tr><td>${esc(v.label)}</td><td>${(v.preferred||[]).map(x=>esc(x.label)).join(', ')}</td></tr>`).join('');
+      $('#profile').innerHTML = `
+        <div class="pcard"><div class="k">Perfil</div>${esc(p.meta?.name||'')} <span class="badge-demo">v${esc(p.meta?.version||'')}</span></div>
+        <div class="pcard"><div class="k">Regiones</div>${(p.regions?.allowed||[]).map(r=>`<span class="chip">${esc(r)}${r===p.regions.primary?' · primaria':''}${r===p.regions.dr?' · DR':''}</span>`).join('')}</div>
+        <div class="pcard"><div class="k">Tamaño de aplicación</div><table>${sizeRows}</table></div>
+        <div class="pcard"><div class="k">Base de datos · tiers por tamaño</div><table>${dbRows}</table>
+          <div style="margin-top:6px">Default: <span class="chip">${esc(engines[p.databases?.defaultEngine]?.label||'')}</span></div></div>
+        <div class="pcard"><div class="k">Stack preferido</div><table class="stk">${stackRows}</table></div>
+        <div class="pcard"><div class="k">Seguridad e integración</div>
+          <span class="chip">${esc(p.identity?.provider||'')}</span><span class="chip">${esc(p.secrets?.service||'')}</span><span class="chip">${esc(p.apiManagement?.service||'')}</span></div>
+        <div class="pcard"><div class="k">Tope por ambiente</div><table>${envRows}</table></div>
+        <div class="pcard"><div class="k">Criticidad</div><table>${critRows}</table></div>
+        <div class="pcard"><div class="k">Tags obligatorios</div>${(p.tagging?.required||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
+        <a class="pcard link" href="/lineamientos.html" target="_blank" rel="noopener">Ver lineamientos completos →</a>`;
+    }catch{ $('#profile').innerHTML = '<div class="pcard">No se pudo cargar el perfil.</div>'; }
+  }
+
+  // ---------- Render ----------
+  function renderAll(){
+    thread.innerHTML = '';
+    if (!history.length){ thread.appendChild($('#heroTpl').content.cloneNode(true)); bindExamples(); return; }
+    history.forEach(m => thread.appendChild(m.role === 'user' ? userEl(m.content) : botEl(m)));
+    toBottom();
+  }
+  function bindExamples(){
+    thread.querySelectorAll('.examples button').forEach(b => b.onclick = () => { input.value = b.dataset.q; autosize(); submit(); });
+  }
+  function userEl(text){
+    const d = document.createElement('div'); d.className = 'msg user';
+    d.innerHTML = `<div class="bubble"></div>`; d.querySelector('.bubble').textContent = text; return d;
+  }
+  function botShell(){
+    const d = document.createElement('div'); d.className = 'msg bot';
+    d.innerHTML = `<div class="avatar"><img src="/brand/crest.svg" alt=""></div><div class="body"></div>`;
+    return d;
+  }
+  function stepsEl(steps, running){
+    const det = document.createElement('details'); det.className = 'steps'; if (running) det.open = true;
+    const n = steps.filter(s => s.kind === 'tool').length;
+    det.innerHTML = `<summary>${running ? 'Trabajando' : 'Pasos del agente'} · ${n} ${n===1?'acción':'acciones'}<span class="chev">›</span></summary><ol></ol>`;
+    const ol = det.querySelector('ol');
+    steps.forEach(s => {
+      const li = document.createElement('li');
+      if (s.kind === 'note'){ li.innerHTML = `<span></span><div class="note"></div>`; li.querySelector('.note').textContent = s.text; }
+      else {
+        li.className = s.state;
+        li.innerHTML = `<span class="st"></span><div><div class="lbl"></div><div class="sum"></div></div>`;
+        li.querySelector('.lbl').textContent = s.label;
+        li.querySelector('.sum').textContent = s.summary || '';
+      }
+      ol.appendChild(li);
+    });
+    return det;
+  }
+  function docEl(doc){
+    const d = document.createElement('div'); d.className = 'doccard';
+    d.innerHTML = `<div class="ic">DOC</div><div><div class="t"></div><div class="s">Borrador para revisión de IT</div></div>
+      <div class="acts"><a class="btn primary" href="${doc.docxUrl}">Word</a><a class="btn" href="${doc.printUrl}" target="_blank" rel="noopener">Ver / PDF</a></div>`;
+    d.querySelector('.t').textContent = doc.title; return d;
+  }
+  function botEl(m, running){
+    const d = botShell(), body = d.querySelector('.body');
+    if (m.steps?.length) body.appendChild(stepsEl(m.steps, running));
+    if (m.doc) body.appendChild(docEl(m.doc));
+    if (m.content){ const c = document.createElement('div'); c.className='content'; c.innerHTML = md(m.content, m.html); body.appendChild(c); }
+    if (m.error){ const e = document.createElement('div'); e.className='error'; e.textContent = m.error; body.appendChild(e); }
+    if (running && !m.content && !m.error){ body.insertAdjacentHTML('beforeend', `<div class="thinking"><span class="dots"><span></span><span></span><span></span></span>Analizando…</div>`); }
+    if (m.usage){ const u = document.createElement('div'); u.className='usage';
+      u.textContent = `${m.usage.inputTokens.toLocaleString('es-AR')} tokens entrada · ${m.usage.outputTokens.toLocaleString('es-AR')} salida` + (m.usage.cacheReadTokens ? ` · ${m.usage.cacheReadTokens.toLocaleString('es-AR')} en caché` : '');
+      body.appendChild(u); }
+    return d;
+  }
+  function toBottom(){ requestAnimationFrame(() => scroll.scrollTop = scroll.scrollHeight); }
+  function save(){ store.set(LS_CHAT, JSON.stringify(history)); }
+
+  // ---------- API ----------
+  function api(url, opts = {}){
+    opts.headers = Object.assign({}, opts.headers, accessKey ? { 'X-Access-Key': accessKey } : {});
+    return fetch(url, opts).then(r => { if (r.status === 401){ askKey(); throw new Error('Clave de acceso inválida'); } return r; });
+  }
+
+  async function submit(){
+    const text = input.value.trim();
+    if (!text || busy) return;
+    busy = true; input.value = ''; autosize();
+    if (!history.length) thread.innerHTML = '';
+    history.push({ role:'user', content:text });
+    thread.appendChild(userEl(text));
+
+    const bot = { role:'assistant', content:'', steps:[] };
+    let node = botEl(bot, true); thread.appendChild(node); toBottom();
+    const repaint = (running = true) => { const n = botEl(bot, running); node.replaceWith(n); node = n; toBottom(); };
+
+    try{
+      const res = await api('/api/chat', {
+        method:'POST', headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ messages: history.filter(m => m.content).map(m => ({ role:m.role, content:m.content })) })
+      });
+      if (res.status === 429) throw new Error('Demasiadas consultas por minuto. Esperá un momento y reintentá.');
+      if (!res.ok || !res.body) throw new Error(`Error del servidor (${res.status}).`);
+
+      const reader = res.body.getReader(), dec = new TextDecoder();
+      let buf = '';
+      for(;;){
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream:true });
+        let i;
+        while ((i = buf.indexOf('\n\n')) >= 0){
+          const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+          let ev = 'message', data = '';
+          chunk.split('\n').forEach(l => { if (l.startsWith('event:')) ev = l.slice(6).trim(); else if (l.startsWith('data:')) data += l.slice(5).trim(); });
+          if (!data) continue;
+          const d = JSON.parse(data);
+          if (ev === 'note') bot.steps.push({ kind:'note', text:d.text });
+          else if (ev === 'tool_start') bot.steps.push({ kind:'tool', id:d.id, label:d.label, state:'run' });
+          else if (ev === 'tool_end'){ const s = bot.steps.find(x => x.id === d.id); if (s){ s.state = d.ok ? 'ok' : 'err'; s.summary = d.summary; } }
+          else if (ev === 'document') bot.doc = d;
+          else if (ev === 'message'){ bot.content = d.text; bot.html = d.html; }
+          else if (ev === 'error') bot.error = d.message + (d.detail ? ` — ${d.detail}` : '');
+          else if (ev === 'done') bot.usage = d.usage;
+          repaint(ev !== 'done' && ev !== 'error');
+        }
+      }
+    }catch(e){ bot.error = e.message || String(e); }
+    bot.steps.forEach(s => { if (s.state === 'run') s.state = 'err'; });
+    repaint(false);
+    history.push(bot); save();
+    busy = false; updateSend(); input.focus();
+  }
+
+  // ---------- UI ----------
+  function autosize(){ input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 220) + 'px'; updateSend(); }
+  function updateSend(){ send.disabled = busy || !input.value.trim(); }
+  input.addEventListener('input', autosize);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); submit(); } });
+  $('#form').addEventListener('submit', e => { e.preventDefault(); submit(); });
+  const reset = () => { if (busy) return; history = []; store.del(LS_CHAT); renderAll(); $('#side').classList.remove('open'); input.focus(); };
+  $('#newChat').onclick = reset; $('#newChatTop').onclick = reset;
+  $('#menuBtn').onclick = () => $('#side').classList.toggle('open');
+
+  function askKey(){ const d = $('#keyDlg'); if (!d.open) d.showModal(); }
+  $('#keyForm').addEventListener('submit', () => { accessKey = $('#keyInput').value.trim(); store.set(LS_KEY, accessKey); loadProfile(); });
+
+  // ---------- Init ----------
+  (async () => {
+    try{ history = JSON.parse(store.get(LS_CHAT) || '[]'); }catch{ history = []; }
+    renderAll();
+    try{
+      config = await fetch('/api/config').then(r => r.json());
+      $('#modelInfo').textContent = `Modelo: ${config.model}` + (config.apiKeyConfigured ? '' : ' · sin API key');
+      if (config.requiresKey && !accessKey) askKey(); else loadProfile();
+    }catch{ $('#modelInfo').textContent = 'Sin conexión con el servidor'; }
+    input.focus();
+  })();
+})();
+</script>
+</body>
+</html>

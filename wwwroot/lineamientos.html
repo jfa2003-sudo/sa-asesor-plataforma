@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lineamientos de Plataforma</title>
+<link rel="icon" href="/brand/crest.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/doc.css">
+<style>
+.doc-body .tag{display:inline-block;border-radius:4px;padding:0 6px;font-size:12px;font-weight:600}
+.tag.pref{background:#E3F1E9;color:#1E5B3C}.tag.allow{background:#E6EEF6;color:#00478E}.tag.appr{background:#FBEFD9;color:#7A4D00}
+.doc-body ul{margin:4px 0 12px;padding-left:20px}
+.doc-body .lead{color:#5B6B7C;margin:-2px 0 10px}
+.toc{columns:2;font-size:14px;margin:0 0 8px;padding-left:18px}
+.toc a{color:#00478E}
+@media (max-width:700px){.toc{columns:1}.doc-body table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">Imprimir / Guardar como PDF</button><a href="/">Volver al asesor</a></div>
+<article class="doc">
+  <header class="doc-head">
+    <div class="brandline"><img src="/brand/logo.svg" alt="St. Andrew's Scots School"><span id="org">Área de IT</span></div>
+    <h1>Lineamientos de Plataforma</h1>
+    <dl id="meta"></dl>
+  </header>
+  <section class="doc-body" id="body"><p>Cargando…</p></section>
+  <footer class="doc-foot">Generado a partir del perfil de plataforma vigente en el Asesor de Plataforma.</footer>
+</article>
+<script>
+(async () => {
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const yes = b => b ? 'Sí' : 'No';
+  const list = a => a && a.length ? `<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  const table = (head, rows) => `<table><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const envs = a => (a||[]).map(esc).join(', ') || '—';
+  let key = ''; try { key = localStorage.getItem('sa-infra-key') || ''; } catch {}
+
+  let p;
+  try {
+    const r = await fetch('/api/profile', { headers: key ? { 'X-Access-Key': key } : {} });
+    if (!r.ok) throw new Error(r.status === 401 ? 'Ingresá primero en el asesor con la clave de acceso.' : `Error ${r.status}`);
+    p = await r.json();
+  } catch (e) { document.getElementById('body').innerHTML = `<p>${esc(e.message)}</p>`; return; }
+
+  document.getElementById('org').textContent = p.meta?.owner || 'Área de IT';
+  document.getElementById('meta').innerHTML = `
+    <div><dt>Versión</dt><dd>${esc(p.meta?.version)}</dd></div>
+    <div><dt>Responsable</dt><dd>${esc(p.meta?.owner)}</dd></div>
+    <div><dt>Nube</dt><dd>${esc((p.cloud||'').toUpperCase())}</dd></div>
+    <div><dt>Moneda</dt><dd>${esc(p.currency)}</dd></div>`;
+
+  const s = [];
+  const sec = (id, title, html) => s.push({ id, title, html });
+
+  if (p.meta?.notes) s.push({ id:'', title:'', html:`<p><strong>${esc(p.meta.notes)}</strong></p>` });
+
+  sec('principios', 'Principios', list(p.standards?.principles) + (p.standards?.forbidden?.length ? `<h3>No permitido</h3>${list(p.standards.forbidden)}` : ''));
+
+  sec('regiones', 'Regiones', table(['Región','Uso'], (p.regions?.allowed||[]).map(r => [esc(r), r===p.regions.primary?'Primaria':r===p.regions.dr?'Recuperación ante desastres':'Permitida'])));
+
+  const cls = p.appSizing?.classes || {};
+  sec('tamano', 'Clasificación de aplicaciones',
+    `<p class="lead">${esc(p.appSizing?.description)}</p>` +
+    table(['Clase','Usuarios concurrentes','Volumen de datos','Ejemplo'], Object.entries(cls).map(([k,v]) => [
+      `<strong>${esc(v.label||k)}</strong>`,
+      v.concurrentUsersMax ? `hasta ${v.concurrentUsersMax}` : 'más que la clase anterior',
+      v.dataGbMax ? `hasta ${v.dataGbMax} GB` : 'más que la clase anterior',
+      esc(v.example)])));
+
+  const db = p.databases || {};
+  sec('bd', 'Bases de datos',
+    `<h3>Motores</h3>` +
+    table(['Motor','Servicio','Cuándo usarlo','Aprobación'], Object.entries(db.engines||{}).map(([k,v]) => [
+      `<strong>${esc(v.label)}</strong>${k===db.defaultEngine?' <span class="tag pref">default</span>':''}`, esc(v.service), esc(v.useWhen),
+      v.requiresApproval ? '<span class="tag appr">Requiere IT</span>' : '<span class="tag allow">Libre</span>'])) +
+    `<h3>Dimensionamiento por tamaño de aplicación</h3>` +
+    table(['Tamaño','Tiers permitidos','PostgreSQL','SQL Server','Retención backup','Réplica de lectura'], Object.entries(db.sizing||{}).map(([k,v]) => [
+      `<strong>${esc(cls[k]?.label||k)}</strong>`, (v.allowedTiers||[]).map(esc).join(', '), esc(v.postgresql), esc(v.sqlserver),
+      `${v.backupRetentionDays} días`, yes(v.readReplica)])) +
+    `<h3>Reglas</h3>` + list([...(db.rules||[]), `Private endpoint obligatorio en: ${(db.privateEndpointIn||[]).join(', ')}`]));
+
+  const st = p.platformStack || {};
+  const opts = a => (a||[]).map(x => esc(x.label)).join('<br>') || '—';
+  sec('stack', 'Lenguajes y plataformas',
+    `<p class="lead">${esc(st.appliesTo)}</p>` +
+    table(['Capa','Preferido','Permitido','Requiere aprobación','Hosting'], Object.values(st).filter(v => v && typeof v === 'object').map(v => [
+      `<strong>${esc(v.label)}</strong>`, opts(v.preferred), opts(v.allowed), opts(v.requiresApproval), (v.hosting||[]).map(esc).join('<br>')])));
+
+  const am = p.apiManagement || {};
+  sec('apim', 'API Management',
+    `<p><strong>Servicio:</strong> ${esc(am.service)}. <strong>Modelo:</strong> ${esc(am.model)}.</p>` +
+    `<h3>Obligatorio cuando</h3>${list(Object.values(am.requiredFor||{}))}` +
+    `<h3>Tiers por ambiente</h3>` + table(['Ambiente','Tiers permitidos'], Object.entries(am.tiersByEnvironment||{}).map(([k,v]) => [esc(k), envs(v)])) +
+    `<h3>Políticas mínimas</h3>${list(am.policies)}`);
+
+  const kv = p.secrets || {};
+  sec('secretos', 'Secretos y certificados',
+    table(['Definición','Valor'], [
+      ['Servicio', esc(kv.service)], ['Modelo', esc(kv.model)], ['Tier', esc(kv.tier) + (kv.premiumRequiresApproval ? ' (Premium requiere aprobación)' : '')],
+      ['Acceso', esc(kv.accessModel)], ['Rotación de secretos', `${kv.rotationDays} días`], ['Soft delete', `${kv.softDeleteRetentionDays} días`],
+      ['Purge protection en', envs(kv.purgeProtectionIn)], ['Private endpoint en', envs(kv.privateEndpointIn)]]) + list(kv.rules));
+
+  sec('identidad', 'Identidad', `<p><strong>Proveedor:</strong> ${esc(p.identity?.provider)}</p>${list(p.identity?.rules)}`);
+  sec('red', 'Red', table(['Definición','Valor'], [['Exposición pública', esc(p.networking?.publicExposure)], ['Private endpoints en', envs(p.networking?.privateEndpointsIn)]]));
+  sec('obs', 'Observabilidad', table(['Definición','Valor'], [
+    ['Servicio', esc(p.observability?.service)],
+    ['Retención de logs', Object.entries(p.observability?.logRetentionDays||{}).map(([k,v]) => `${esc(k)}: ${v} días`).join(' · ')],
+    ['Alertas', esc(p.observability?.alerts)]]));
+  sec('delivery', 'Entrega', table(['Definición','Valor'], [['Infraestructura como código', esc(p.delivery?.iac)], ['CI/CD', esc(p.delivery?.cicd)]]) + list(p.delivery?.rules));
+
+  sec('ambientes', 'Ambientes', table(['Ambiente','Tope mensual','Series de VM','Máx. vCPU por VM','IP pública','Horario','Compromiso'],
+    Object.entries(p.environments||{}).map(([k,v]) => [`<strong>${esc(k)}</strong>`, `USD ${Number(v.maxMonthlyUsd).toLocaleString('es-AR')}`, envs(v.allowedVmSeries), v.maxVcpuPerVm, yes(v.allowPublicIp), esc(v.schedule), esc(v.commitment)])));
+
+  sec('criticidad', 'Criticidad', table(['Nivel','RPO','RTO','Instancias mín.','Zonas','Backup','Región DR'],
+    Object.entries(p.criticality||{}).map(([k,v]) => [`<strong>${esc(k)}</strong>`, `${v.rpoHours} h`, `${v.rtoHours} h`, v.minComputeInstances, yes(v.requireAvailabilityZones), yes(v.requireBackup), yes(v.requireDrRegion)])));
+
+  sec('gobierno', 'Tags y nomenclatura', table(['Definición','Valor'], [
+    ['Tags obligatorios', (p.tagging?.required||[]).map(esc).join(', ')],
+    ['Patrón de nombres', `<code>${esc(p.naming?.pattern)}</code>`], ['Ejemplo', `<code>${esc(p.naming?.example)}</code>`]]));
+
+  const numbered = s.filter(x => x.title);
+  document.getElementById('body').innerHTML =
+    (s[0].title ? '' : s[0].html) +
+    `<ol class="toc">${numbered.map((x,i) => `<li><a href="#${x.id}">${esc(x.title)}</a></li>`).join('')}</ol>` +
+    numbered.map((x,i) => `<h2 id="${x.id}">${i+1}. ${esc(x.title)}</h2>${x.html}`).join('');
+})();
+</script>
+</body>
+</html>
