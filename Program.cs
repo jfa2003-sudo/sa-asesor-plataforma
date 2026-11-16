@@ -16,7 +16,7 @@ builder.Services.AddSingleton(_ => ProfileStore.Load(profilePath));
 builder.Services.AddHttpClient("anthropic", c =>
 {
     c.BaseAddress = new Uri(cfg["ANTHROPIC_BASE_URL"] ?? "https://api.anthropic.com/");
-    c.Timeout = TimeSpan.FromSeconds(180);
+    c.Timeout = TimeSpan.FromMinutes(10); // respuestas largas sin streaming
 });
 builder.Services.AddHttpClient("azureprices", c => c.Timeout = TimeSpan.FromSeconds(30));
 builder.Services.AddSingleton<AzurePricing>();
@@ -39,7 +39,7 @@ builder.Services.AddRateLimiter(o =>
 });
 
 var app = builder.Build();
-var accessKey = cfg["ACCESS_KEY"];
+var accessKey = cfg["ACCESS_KEY"]?.Trim();
 var web = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
 // Clave de acceso opcional para /api (excepto config y documentos, que usan id no adivinable).

@@ -59,7 +59,8 @@ curl -X POST localhost:8080/api/dev/tools/validate_proposal -H 'Content-Type: ap
 | `CLAUDE_MODEL` | `claude-sonnet-5-5` | Modelo |
 | `CHAT_RATE_PER_MINUTE` | `10` | Tope **global** de consultas por minuto |
 | `AGENT_MAX_STEPS` | `12` | Máximo de llamadas al modelo por consulta |
-| `AGENT_MAX_TOKENS` | `8000` | `max_tokens` por llamada |
+| `AGENT_MAX_TOKENS` | `16000` | `max_tokens` inicial por llamada |
+| `AGENT_MAX_TOKENS_CAP` | `32000` | Tope al reintentar: si una llamada corta por límite, se repite con el doble hasta este valor |
 | `PROFILE_PATH` | `profile/it-profile.json` | Perfil alternativo |
 
 ## Ajustar el perfil

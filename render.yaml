@@ -15,3 +15,7 @@ services:
         value: "10"
       - key: AGENT_MAX_STEPS
         value: "12"
+      - key: AGENT_MAX_TOKENS
+        value: "16000"
+      - key: AGENT_MAX_TOKENS_CAP
+        value: "32000"

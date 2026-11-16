@@ -17,6 +17,7 @@ public sealed class ClaudeAgent
     private readonly string _system;
     private readonly int _maxSteps;
     private readonly int _maxTokens;
+    private readonly int _maxTokensCap;
 
     public string Model { get; }
     public bool HasApiKey => !string.IsNullOrWhiteSpace(_apiKey);
@@ -24,10 +25,11 @@ public sealed class ClaudeAgent
     public ClaudeAgent(IHttpClientFactory http, AgentTools tools, IConfiguration cfg, ILogger<ClaudeAgent> log)
     {
         _http = http; _tools = tools; _log = log;
-        _apiKey = cfg["ANTHROPIC_API_KEY"];
+        _apiKey = cfg["ANTHROPIC_API_KEY"]?.Trim().Trim('"', '\'').Trim();
         Model = cfg["CLAUDE_MODEL"] ?? "claude-sonnet-5-5";
         _maxSteps = int.TryParse(cfg["AGENT_MAX_STEPS"], out var s) ? s : 12;
-        _maxTokens = int.TryParse(cfg["AGENT_MAX_TOKENS"], out var t) ? t : 8000;
+        _maxTokens = int.TryParse(cfg["AGENT_MAX_TOKENS"], out var t) ? t : 16000;
+        _maxTokensCap = Math.Max(_maxTokens, int.TryParse(cfg["AGENT_MAX_TOKENS_CAP"], out var c) ? c : 32000);
         _system = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "prompts", "system.md"));
     }
 
@@ -50,13 +52,14 @@ public sealed class ClaudeAgent
 
         long inTok = 0, outTok = 0, cacheRead = 0, cacheWrite = 0;
         var client = _http.CreateClient("anthropic");
+        var curMax = _maxTokens;
 
         for (var step = 0; step < _maxSteps; step++)
         {
             var body = new JsonObject
             {
                 ["model"] = Model,
-                ["max_tokens"] = _maxTokens,
+                ["max_tokens"] = curMax,
                 ["system"] = new JsonArray(new JsonObject
                 {
                     ["type"] = "text",
@@ -100,6 +103,18 @@ public sealed class ClaudeAgent
 
                 var content = resp["content"]?.AsArray() ?? new JsonArray();
                 var stop = resp["stop_reason"]?.GetValue<string>();
+
+                // Si corta por límite de salida, se descarta la respuesta parcial y se reintenta
+                // el mismo paso con más margen, hasta AGENT_MAX_TOKENS_CAP.
+                if (stop == "max_tokens" && curMax < _maxTokensCap)
+                {
+                    curMax = Math.Min(_maxTokensCap, curMax * 2);
+                    _log.LogInformation("max_tokens alcanzado; reintento con {Max}", curMax);
+                    await emit("note", new { text = $"Respuesta extensa: reintentando con más margen ({curMax.ToString("N0").Replace(',', '.')} tokens)." });
+                    step--;
+                    continue;
+                }
+
                 messages.Add(new JsonObject { ["role"] = "assistant", ["content"] = content.DeepClone() });
 
                 var text = string.Join("\n\n", content
@@ -110,7 +125,7 @@ public sealed class ClaudeAgent
 
                 if (stop != "tool_use" || toolUses.Count == 0)
                 {
-                    if (stop == "max_tokens") text += "\n\n*(Respuesta cortada por límite de tokens.)*";
+                    if (stop == "max_tokens") text += $"\n\n*(Respuesta cortada: superó el máximo de {_maxTokensCap.ToString("N0").Replace(',', '.')} tokens de salida.)*";
                     await emit("message", new { text, html = MarkdownLite.ToHtml(MarkdownLite.Parse(text)) });
                     await emit("done", new { usage = new { inputTokens = inTok, outputTokens = outTok, cacheReadTokens = cacheRead, cacheWriteTokens = cacheWrite }, steps = step + 1, model = Model });
                     return;
