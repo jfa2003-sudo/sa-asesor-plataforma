@@ -298,7 +298,8 @@ dialog input{width:100%;padding:10px 12px;border:1px solid var(--line);border-ra
         <div class="pcard"><div class="k">Tope por ambiente</div><table>${envRows}</table></div>
         <div class="pcard"><div class="k">Criticidad</div><table>${critRows}</table></div>
         <div class="pcard"><div class="k">Tags obligatorios</div>${(p.tagging?.required||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
-        <a class="pcard link" href="/lineamientos.html" target="_blank" rel="noopener">Ver lineamientos completos →</a>`;
+        <a class="pcard link" href="/lineamientos.html" target="_blank" rel="noopener">Ver lineamientos completos →</a>
+        <a class="pcard link" href="/seguridad.html">Revisor de seguridad →</a>`;
     }catch{ $('#profile').innerHTML = '<div class="pcard">No se pudo cargar el perfil.</div>'; }
   }
 

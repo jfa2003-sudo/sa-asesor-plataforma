@@ -61,7 +61,30 @@ curl -X POST localhost:8080/api/dev/tools/validate_proposal -H 'Content-Type: ap
 | `AGENT_MAX_STEPS` | `12` | Máximo de llamadas al modelo por consulta |
 | `AGENT_MAX_TOKENS` | `16000` | `max_tokens` inicial por llamada |
 | `AGENT_MAX_TOKENS_CAP` | `32000` | Tope al reintentar: si una llamada corta por límite, se repite con el doble hasta este valor |
+| `REVIEW_RATE_PER_MINUTE` | `3` | Tope global de revisiones de seguridad por minuto |
+| `SECURITY_MAX_STEPS` | `30` | Máximo de llamadas al modelo por revisión de seguridad |
+| `SECURITY_MODEL` | igual a `CLAUDE_MODEL` | Modelo del revisor de seguridad |
 | `PROFILE_PATH` | `profile/it-profile.json` | Perfil alternativo |
+
+## Revisor de seguridad (`/seguridad.html`)
+
+Segundo agente: revisa el código de una app antes de desplegarla y lo contrasta con el documento del asesor de arquitectura.
+
+1. **Entrada:** zip del código (hasta 30 MB) y, opcional, el documento de arquitectura (.docx, .md, .txt o .json).
+2. **Chequeos automáticos** (`src/Security/SecurityScanner.cs`), sin ejecutar nada del zip:
+   - secretos con reglas tipo gitleaks;
+   - dependencias npm contra la API de avisos del registro, la misma que usa `npm audit`, separando producción y desarrollo;
+   - Dockerfile, CI, IaC, TLS desactivado, certificados en disco, SQLite y servicios externos.
+3. **Revisión del código:** el agente usa `read_file`, `search_code` y `list_files` y cierra con `submit_review`.
+4. **Control de evidencia:** el sistema verifica que cada archivo y línea citados existan. Si no existen, pide corrección una vez; los que siguen sin existir se descartan.
+5. **Veredicto por reglas** (`profile/security-profile.json`): no apto si hay una alta, apto con observaciones si hay medias, apto si no hay ninguna de las dos.
+6. **Salida:** informe en Word y PDF.
+
+El zip se lee en memoria con límites de tamaño y rutas, y no se guarda. Cada revisión deja una línea `USO` en los logs.
+
+## Registro de uso
+
+Cada consulta del asesor y cada revisión de seguridad escribe una línea `USO {...}` en los logs. Incluye pedido, pasos, herramientas, tokens, si se generó documento y el veredicto. En Render se filtra por `USO` en **Logs**; en el plan Hobby se conservan 7 días.
 
 ## Ajustar el perfil
 

@@ -19,3 +19,7 @@ services:
         value: "16000"
       - key: AGENT_MAX_TOKENS_CAP
         value: "32000"
+      - key: REVIEW_RATE_PER_MINUTE
+        value: "3"
+      - key: SECURITY_MAX_STEPS
+        value: "30"

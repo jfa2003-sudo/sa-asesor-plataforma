@@ -53,6 +53,15 @@ public sealed class ClaudeAgent
         long inTok = 0, outTok = 0, cacheRead = 0, cacheWrite = 0;
         var client = _http.CreateClient("anthropic");
         var curMax = _maxTokens;
+        string? verdict = null; var docGenerated = false; var toolCount = 0;
+        var started = DateTime.UtcNow;
+        var pedido = history.LastOrDefault(m => m.Role != "assistant")?.Content ?? "";
+        void LogUso(string resultado, int steps) => _log.LogInformation("USO {Uso}", JsonSerializer.Serialize(new
+        {
+            tipo = "arquitectura", resultado, pedido = pedido.Length > 120 ? pedido[..120] + "…" : pedido, pasos = steps, herramientas = toolCount,
+            documento = docGenerated, veredicto = verdict, segundos = (int)(DateTime.UtcNow - started).TotalSeconds,
+            tokens = new { entrada = inTok, salida = outTok, cacheLeido = cacheRead, cacheEscrito = cacheWrite }, modelo = Model,
+        }));
 
         for (var step = 0; step < _maxSteps; step++)
         {
@@ -128,6 +137,7 @@ public sealed class ClaudeAgent
                     if (stop == "max_tokens") text += $"\n\n*(Respuesta cortada: superó el máximo de {_maxTokensCap.ToString("N0").Replace(',', '.')} tokens de salida.)*";
                     await emit("message", new { text, html = MarkdownLite.ToHtml(MarkdownLite.Parse(text)) });
                     await emit("done", new { usage = new { inputTokens = inTok, outputTokens = outTok, cacheReadTokens = cacheRead, cacheWriteTokens = cacheWrite }, steps = step + 1, model = Model });
+                    LogUso(stop == "max_tokens" ? "cortada" : "ok", step + 1);
                     return;
                 }
 
@@ -156,6 +166,9 @@ public sealed class ClaudeAgent
                     }
 
                     await emit("tool_end", new { id, name, ok = !r.IsError, summary = r.Summary });
+                    toolCount++;
+                    if (name == "validate_proposal" && !r.IsError) verdict = r.Summary.Split(' ')[0];
+                    if (r.Document is not null) docGenerated = true;
                     if (r.Document is { } doc)
                         await emit("document", new { id = doc.Id, title = doc.Title, docxUrl = $"/api/documents/{doc.Id}/docx", printUrl = $"/api/documents/{doc.Id}/print" });
 

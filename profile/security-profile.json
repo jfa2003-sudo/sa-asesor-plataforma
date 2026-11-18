@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "name": "Perfil de seguridad de aplicaciones",
+    "organization": "Colegio San Andrés",
+    "version": "0.1-borrador",
+    "owner": "Área de IT",
+    "notes": "BORRADOR surgido del piloto sobre AppsSASS (18/11/2026). Baseline, reglas y severidades a aprobar por IT."
+  },
+  "baseline": [
+    "Microsoft Cloud Security Benchmark (Azure)",
+    "OWASP ASVS nivel 2 (aplicaciones web)"
+  ],
+  "severityPolicy": {
+    "alta": "Bloquea el despliegue a producción.",
+    "media": "Se corrige dentro del plan de despliegue o con excepción aprobada por IT.",
+    "baja": "Entra al backlog del equipo."
+  },
+  "verdictRules": {
+    "NO_APTO": "Al menos un hallazgo de severidad alta abierto.",
+    "APTO_CON_OBSERVACIONES": "Sin altas; al menos una media abierta.",
+    "APTO": "Sin altas ni medias abiertas."
+  },
+  "dataClassification": [
+    { "class": "sensible", "examples": "Datos de alumnos (menores), salud, legajos personales, datos bancarios (CBU), documentos de identidad", "rule": "Requiere aprobación de IT y del responsable de datos antes de enviarse a un servicio externo. Ley 25.326." },
+    { "class": "interna", "examples": "Datos financieros agregados, planillas de gestión, proveedores", "rule": "Solo a servicios con contrato y sin uso de datos para entrenamiento." },
+    { "class": "publica", "examples": "Información publicada en el sitio del colegio", "rule": "Sin restricciones." }
+  ],
+  "rules": [
+    { "id": "SEC-01", "domain": "Secretos", "rule": "Ningún secreto real en el código ni en el historial del repositorio.", "severity": "alta", "check": "Escáner de secretos + revisión" },
+    { "id": "SEC-02", "domain": "Secretos", "rule": "En producción, todos los secretos y certificados en Key Vault, leídos con Managed Identity. Nada en archivos .env ni en disco.", "severity": "alta", "check": "Variables de entorno, archivos de configuración, lectura de certificados" },
+    { "id": "SEC-03", "domain": "Datos en tránsito", "rule": "TLS con validación de certificado en toda conexión a bases de datos y APIs externas.", "severity": "alta", "check": "Configuración de clientes de base y HTTP" },
+    { "id": "SEC-04", "domain": "Entrega", "rule": "Infraestructura definida como código (Bicep) y despliegue a producción por pipeline con aprobación.", "severity": "alta", "check": "Presencia de IaC y workflow de despliegue" },
+    { "id": "SEC-05", "domain": "Dependencias", "rule": "Sin vulnerabilidades altas o críticas conocidas en dependencias de producción.", "severity": "alta", "check": "Auditoría de dependencias" },
+    { "id": "SEC-06", "domain": "Imagen", "rule": "Contenedor sin usuario root y sin vulnerabilidades críticas; imagen base con versión fijada.", "severity": "media", "check": "Dockerfile" },
+    { "id": "SEC-07", "domain": "Código", "rule": "Sin inyección (SQL, comandos, rutas), sin XSS ni deserialización insegura en entradas del usuario.", "severity": "alta", "check": "Revisión de acceso a datos, archivos, ejecución de procesos y render de HTML" },
+    { "id": "SEC-08", "domain": "Autenticación", "rule": "SSO corporativo; sesiones firmadas, con expiración, cookies httpOnly y secure; protección CSRF en escrituras.", "severity": "alta", "check": "Login, sesión, middleware" },
+    { "id": "SEC-09", "domain": "Autorización", "rule": "Acceso denegado por defecto y permiso validado del lado servidor en cada API y acción, con tests.", "severity": "alta", "check": "Middleware, rutas de API, tests de acceso" },
+    { "id": "SEC-10", "domain": "Identidad", "rule": "MFA obligatoria para administradores y al menos dos administradores, definidos fuera del código.", "severity": "media", "check": "Gestión de roles y administradores" },
+    { "id": "SEC-11", "domain": "Datos a terceros", "rule": "Todo envío de datos sensibles o internos a un servicio externo está aprobado, con contrato y sin uso para entrenamiento.", "severity": "media", "check": "Inventario de llamadas a servicios externos y qué datos envían" },
+    { "id": "SEC-12", "domain": "Persistencia", "rule": "Datos de negocio en servicios PaaS con backup administrado; nada de estado crítico en el disco del contenedor.", "severity": "media", "check": "Bases locales, archivos en disco" },
+    { "id": "SEC-13", "domain": "Entrega", "rule": "CI con análisis estático, escaneo de secretos y escaneo de imagen.", "severity": "media", "check": "Workflows de CI" },
+    { "id": "SEC-14", "domain": "Navegador", "rule": "Cabeceras de seguridad (CSP, HSTS, X-Frame-Options, nosniff) en aplicaciones web.", "severity": "media", "check": "Configuración del servidor web o framework" },
+    { "id": "SEC-15", "domain": "Archivos", "rule": "Uploads con tipo, tamaño y contenido validados; sin acceso a rutas arbitrarias.", "severity": "media", "check": "Endpoints de subida y descarga" },
+    { "id": "SEC-16", "domain": "Observabilidad", "rule": "Errores y auditoría enviados a un servicio central con la retención del perfil; sin datos sensibles en logs.", "severity": "baja", "check": "Logging" },
+    { "id": "SEC-17", "domain": "Entrega", "rule": "Versiones fijadas: runtime alineado entre CI e imagen, acciones de CI por SHA.", "severity": "baja", "check": "CI y Dockerfile" }
+  ]
+}

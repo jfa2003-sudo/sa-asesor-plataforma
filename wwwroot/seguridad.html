@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Revisor de Seguridad · St. Andrew's IT</title>
+<link rel="icon" href="/brand/crest.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#00478E; --brand-ink:#00356B; --brand-soft:#E6EEF6;
+  --cream:#F7F4ED; --cream-line:#E3DBCA;
+  --bg:#FBFAF6; --panel:#FFFFFF; --ink:#16212E; --muted:#5E6B78; --line:#E6E0D3;
+  --ok:#1E7A4C; --ok-soft:#E5F2EA; --warn:#9A6200; --warn-soft:#FBF0DC; --fail:#B42318; --fail-soft:#FBE7E5;
+  --head:var(--brand);
+  --serif:"Source Serif 4", Georgia, serif;
+  --sans:"Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1520; --panel:#111F2E; --ink:#E6ECF2; --muted:#93A3B5; --line:#22344A; --cream:#0E1B2A; --cream-line:#22344A;
+    --brand-soft:#16304D; --ok-soft:#12301F; --warn-soft:#33270F; --fail-soft:#3A1714; --head:#9CC3EA;
+    --ok:#5CC48A; --warn:#E3A84A; --fail:#F0857A;
+  }
+  :root:not([data-theme="light"]) .logo-light{display:none !important}
+  :root:not([data-theme="light"]) .logo-dark{display:block !important}
+}
+:root[data-theme="dark"]{
+  --bg:#0B1520; --panel:#111F2E; --ink:#E6ECF2; --muted:#93A3B5; --line:#22344A; --cream:#0E1B2A; --cream-line:#22344A;
+  --brand-soft:#16304D; --ok-soft:#12301F; --warn-soft:#33270F; --fail-soft:#3A1714; --head:#9CC3EA;
+  --ok:#5CC48A; --warn:#E3A84A; --fail:#F0857A;
+}
+:root[data-theme="dark"] .logo-light{display:none !important}
+:root[data-theme="dark"] .logo-dark{display:block !important}
+.logo-dark{display:none !important}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button,input{font:inherit}
+.top{background:var(--cream);border-bottom:1px solid var(--cream-line)}
+.top .in{max-width:880px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px}
+.top img{height:36px;width:auto;display:block}
+.top .sp{flex:1}
+.top a{color:var(--head);font-weight:600;text-decoration:none;font-size:14px;white-space:nowrap}
+.top a:hover{text-decoration:underline}
+main{max-width:880px;margin:0 auto;padding:32px 24px 64px}
+.eyebrow{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--head);font-weight:700;margin:0 0 6px}
+h1{font:700 clamp(26px,4vw,34px)/1.2 var(--serif);margin:0 0 8px}
+.lead{color:var(--muted);margin:0 0 24px;max-width:640px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.drops{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.drop{position:relative;border:1.5px dashed var(--cream-line);border-radius:12px;padding:18px;background:var(--bg);cursor:pointer;transition:border-color .15s,background .15s;min-height:118px}
+.drop:hover,.drop.over{border-color:var(--brand);background:var(--brand-soft)}
+.drop.has{border-style:solid;border-color:var(--brand)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop b{display:block;font-weight:600}
+.drop .req{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.drop .hint{color:var(--muted);font-size:14px;margin-top:4px}
+.drop .file{margin-top:8px;font-size:14px;font-weight:600;color:var(--head);overflow-wrap:anywhere}
+.row{display:flex;gap:12px;align-items:flex-end;margin-top:16px;flex-wrap:wrap}
+.row label{flex:1;min-width:220px;font-size:14px;color:var(--muted)}
+.row input[type=text]{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:11px 18px;font-weight:700;background:var(--brand);color:#fff;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--head);border:1px solid var(--brand)}
+.note{color:var(--muted);font-size:13px;margin:12px 0 0}
+
+#run{margin-top:24px;display:none}
+.steps{border:1px solid var(--line);background:var(--panel);border-radius:12px;font-size:14px}
+.steps summary{list-style:none;cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600}
+.steps summary::-webkit-details-marker{display:none}
+.steps summary .chev{margin-left:auto;transition:transform .15s}
+.steps[open] summary .chev{transform:rotate(90deg)}
+.steps ol{list-style:none;margin:0;padding:0 14px 10px;max-height:360px;overflow:auto}
+.steps li{display:grid;grid-template-columns:18px 1fr;gap:8px;padding:6px 0;border-top:1px dashed var(--line)}
+.steps li:first-child{border-top:0}
+.st{width:14px;height:14px;margin-top:4px;border-radius:50%;border:2px solid var(--muted)}
+.run .st{border-color:var(--brand);border-top-color:transparent;animation:spin .8s linear infinite}
+.ok .st{border-color:var(--ok);background:var(--ok)}
+.err .st{border-color:var(--fail);background:var(--fail)}
+.lbl{font-weight:600;overflow-wrap:anywhere}
+.sum{color:var(--muted);font-size:13px}
+.nt{color:var(--muted);font-style:italic;font-size:13px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.verdict{margin-top:20px;border-radius:14px;padding:18px 20px;border:1px solid var(--line);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.verdict .v{font:700 24px/1.2 var(--serif)}
+.verdict.NO_APTO{background:var(--fail-soft);border-color:var(--fail)} .verdict.NO_APTO .v{color:var(--fail)}
+.verdict.APTO_CON_OBSERVACIONES{background:var(--warn-soft);border-color:var(--warn)} .verdict.APTO_CON_OBSERVACIONES .v{color:var(--warn)}
+.verdict.APTO{background:var(--ok-soft);border-color:var(--ok)} .verdict.APTO .v{color:var(--ok)}
+.counts{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
+.counts span{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:600}
+.content{margin-top:16px;overflow-wrap:anywhere}
+.content h2{font:700 20px/1.25 var(--serif);color:var(--head);margin:4px 0 8px}
+.content p{margin:0 0 10px}
+.content .tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:6px 0 12px}
+.content table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel)}
+.content th{background:var(--brand);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
+.content td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:top}
+.content code{background:var(--brand-soft);border-radius:5px;padding:1px 5px;font-size:.88em}
+.doccard{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-left:4px solid var(--brand);background:var(--panel);border-radius:12px;padding:12px 14px;margin:14px 0}
+.doccard .ic{width:38px;height:46px;border-radius:6px;background:var(--brand);color:#fff;display:grid;place-items:center;font:700 11px var(--sans);flex:none}
+.doccard .t{font-weight:600}
+.doccard .s{color:var(--muted);font-size:13px}
+.doccard .acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.doccard a{display:inline-flex;border-radius:9px;padding:7px 12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid var(--brand);color:var(--head)}
+.doccard a.primary{background:var(--brand);color:#fff}
+.usage{color:var(--muted);font-size:12px;margin-top:8px}
+.error{color:var(--fail);background:var(--fail-soft);border:1px solid var(--fail);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:14px}
+dialog{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--panel);color:var(--ink);max-width:380px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(0,30,60,.5)}
+dialog h2{font:700 19px var(--serif);margin:0 0 6px;color:var(--head)}
+dialog p{color:var(--muted);font-size:14px;margin:0 0 14px}
+dialog input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin-bottom:14px}
+@media (max-width:640px){
+  .top .in,main{padding-left:16px;padding-right:16px}
+  .top img{height:30px}
+  .top a .long{display:none}
+  .drops{grid-template-columns:1fr}
+  .counts{margin-left:0}
+  .doccard{flex-wrap:wrap}.doccard .acts{margin-left:0}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <img class="logo-light" src="/brand/logo.svg" alt="St. Andrew's Scots School"><img class="logo-dark" src="/brand/logo-white.svg" alt="St. Andrew's Scots School">
+  <span class="sp"></span>
+  <a href="/">← Asesor<span class="long"> de Plataforma</span></a>
+</div></header>
+
+<main>
+  <p class="eyebrow">Área de IT · Revisor de Seguridad</p>
+  <h1>¿Está lista para producción?</h1>
+  <p class="lead">Subí el código de la aplicación y, si lo tenés, el documento del asesor de arquitectura. El revisor corre chequeos automáticos, lee el código y entrega hallazgos con evidencia y un veredicto según el perfil de seguridad de IT.</p>
+
+  <form class="card" id="form">
+    <div class="drops">
+      <div class="drop" id="dCode">
+        <span class="req">Obligatorio</span>
+        <b>Código (.zip)</b>
+        <div class="hint">Sin node_modules, bin, obj ni .env. Hasta 30 MB.</div>
+        <div class="file" id="fCode"></div>
+        <input type="file" id="code" accept=".zip" aria-label="Código en zip">
+      </div>
+      <div class="drop" id="dArch">
+        <span class="req">Opcional</span>
+        <b>Documento de arquitectura</b>
+        <div class="hint">.docx, .md, .txt o .json del asesor de plataforma.</div>
+        <div class="file" id="fArch"></div>
+        <input type="file" id="arch" accept=".docx,.md,.txt,.json" aria-label="Documento de arquitectura">
+      </div>
+    </div>
+    <div class="row">
+      <label>Solicitante (opcional)<input type="text" id="requester" placeholder="Ej.: Equipo de AppsSASS" maxlength="120"></label>
+      <button class="btn" id="go" type="submit" disabled>Revisar</button>
+    </div>
+    <p class="note">No cargues secretos reales: el código se envía al modelo de IA para su revisión y no se guarda en el servidor.</p>
+  </form>
+
+  <section id="run">
+    <details class="steps" id="steps" open><summary><span id="stepsTitle">Trabajando</span><span class="chev">›</span></summary><ol id="stepList"></ol></details>
+    <div id="result"></div>
+  </section>
+</main>
+
+<dialog id="keyDlg">
+  <form method="dialog" id="keyForm">
+    <h2>Acceso</h2>
+    <p>Ingresá la clave de acceso que te dio el área de IT.</p>
+    <input id="keyInput" type="password" autocomplete="off" required>
+    <button class="btn" type="submit">Ingresar</button>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const LS_KEY = 'sa-infra-key';
+  let key = ''; try { key = localStorage.getItem(LS_KEY) || ''; } catch {}
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let busy = false;
+  const pl = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+
+  function bindDrop(drop, input, label){
+    const show = () => { const f = input.files[0]; label.textContent = f ? `${f.name} · ${(f.size/1e6).toFixed(1)} MB` : ''; drop.classList.toggle('has', !!f); $('#go').disabled = busy || !$('#code').files[0]; };
+    input.addEventListener('change', show);
+    ['dragenter','dragover'].forEach(e => drop.addEventListener(e, () => drop.classList.add('over')));
+    ['dragleave','drop'].forEach(e => drop.addEventListener(e, () => drop.classList.remove('over')));
+  }
+  bindDrop($('#dCode'), $('#code'), $('#fCode'));
+  bindDrop($('#dArch'), $('#arch'), $('#fArch'));
+
+  function askKey(){ const d = $('#keyDlg'); if (!d.open) d.showModal(); }
+  $('#keyForm').addEventListener('submit', () => { key = $('#keyInput').value.trim(); try { localStorage.setItem(LS_KEY, key); } catch {} });
+  fetch('/api/config').then(r => r.json()).then(c => { if (c.requiresKey && !key) askKey(); }).catch(() => {});
+
+  const steps = [];
+  function renderSteps(running){
+    const n = steps.filter(s => s.kind === 'tool').length;
+    $('#stepsTitle').textContent = `${running ? 'Trabajando' : 'Pasos de la revisión'} · ${n} ${n === 1 ? 'acción' : 'acciones'}`;
+    const ol = $('#stepList'); ol.innerHTML = '';
+    steps.forEach(s => {
+      const li = document.createElement('li');
+      if (s.kind === 'note'){ li.innerHTML = '<span></span><div class="nt"></div>'; li.querySelector('.nt').textContent = s.text; }
+      else { li.className = s.state; li.innerHTML = '<span class="st"></span><div><div class="lbl"></div><div class="sum"></div></div>'; li.querySelector('.lbl').textContent = s.label; li.querySelector('.sum').textContent = s.summary || ''; }
+      ol.appendChild(li);
+    });
+    ol.scrollTop = ol.scrollHeight;
+  }
+
+  function wrapTables(html){
+    const d = document.createElement('div'); d.innerHTML = html;
+    d.querySelectorAll('table').forEach(t => { const w = document.createElement('div'); w.className = 'tw'; t.replaceWith(w); w.appendChild(t); });
+    return d.innerHTML;
+  }
+
+  $('#form').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (busy || !$('#code').files[0]) return;
+    busy = true; $('#go').disabled = true; $('#go').textContent = 'Revisando…';
+    steps.length = 0; $('#run').style.display = 'block'; $('#steps').open = true; $('#result').innerHTML = ''; renderSteps(true);
+    const res = {};
+    const fd = new FormData();
+    fd.append('code', $('#code').files[0]);
+    if ($('#arch').files[0]) fd.append('arch', $('#arch').files[0]);
+    fd.append('requester', $('#requester').value);
+
+    try {
+      const r = await fetch('/api/security/review', { method:'POST', body: fd, headers: key ? { 'X-Access-Key': key } : {} });
+      if (r.status === 401){ askKey(); throw new Error('Clave de acceso inválida. Ingresala y volvé a intentar.'); }
+      if (r.status === 429) throw new Error('Hay demasiadas revisiones en curso. Esperá un minuto y reintentá.');
+      if (!r.ok || !r.body){ let m = `Error del servidor (${r.status}).`; try { m = (await r.json()).error || m; } catch {} throw new Error(m); }
+      const reader = r.body.getReader(), dec = new TextDecoder(); let buf = '';
+      for(;;){
+        const { value, done } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream:true });
+        let i;
+        while ((i = buf.indexOf('\n\n')) >= 0){
+          const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+          let ev = 'message', data = '';
+          chunk.split('\n').forEach(l => { if (l.startsWith('event:')) ev = l.slice(6).trim(); else if (l.startsWith('data:')) data += l.slice(5).trim(); });
+          if (!data) continue;
+          const d = JSON.parse(data);
+          if (ev === 'note') steps.push({ kind:'note', text:d.text });
+          else if (ev === 'tool_start') steps.push({ kind:'tool', id:d.id, label:d.label, state:'run' });
+          else if (ev === 'tool_end'){ const s = steps.find(x => x.id === d.id); if (s){ s.state = d.ok ? 'ok' : 'err'; s.summary = d.summary; } }
+          else Object.assign(res, { [ev]: d });
+          renderSteps(true);
+        }
+      }
+    } catch (err) { res.error = { message: err.message || String(err) }; }
+
+    steps.forEach(s => { if (s.state === 'run') s.state = 'err'; });
+    renderSteps(false); $('#steps').open = false;
+    let html = '';
+    if (res.verdict){
+      const v = res.verdict;
+      html += `<div class="verdict ${esc(v.verdict)}"><div class="v">${esc(v.verdictText)}</div><div class="counts"><span>${pl(v.alta,'alta','altas')}</span><span>${pl(v.media,'media','medias')}</span><span>${pl(v.baja,'baja','bajas')}</span>${v.discrepancies ? `<span>${pl(v.discrepancies,'diferencia','diferencias')} con arquitectura</span>` : ''}</div></div>`;
+    }
+    if (res.document){
+      const d = res.document;
+      html += `<div class="doccard"><div class="ic">DOC</div><div><div class="t">${esc(d.title)}</div><div class="s">Informe completo para revisión de IT</div></div><div class="acts"><a class="primary" href="${esc(d.docxUrl)}">Word</a><a href="${esc(d.printUrl)}" target="_blank" rel="noopener">Ver / PDF</a></div></div>`;
+    }
+    if (res.message) html += `<div class="content">${wrapTables(res.message.html || '')}</div>`;
+    if (res.error) html += `<div class="error">${esc(res.error.message)}${res.error.detail ? ' — ' + esc(res.error.detail) : ''}</div>`;
+    if (res.done && res.done.usage){
+      const u = res.done.usage, f = n => Number(n || 0).toLocaleString('es-AR');
+      html += `<div class="usage">${f(u.inputTokens)} tokens entrada · ${f(u.outputTokens)} salida · ${f(u.cacheReadTokens)} en caché${res.done.filesRead != null ? ` · ${res.done.filesRead} archivos leídos` : ''}</div>`;
+    }
+    $('#result').innerHTML = html;
+    busy = false; $('#go').textContent = 'Revisar'; $('#go').disabled = !$('#code').files[0];
+  });
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ using System.Text.Json.Nodes;
 
 namespace InfraAdvisor;
 
-public sealed record RecommendationDoc(string Id, string Title, string Requester, string Markdown, DateTime CreatedUtc);
+public sealed record RecommendationDoc(string Id, string Title, string Requester, string Markdown, DateTime CreatedUtc, string? Footer = null, string? ProfileLabel = null);
 
 /// <summary>Genera y guarda (en memoria) los documentos de recomendación. Exporta a .docx y a vista imprimible.</summary>
 public sealed class DocumentService
@@ -46,7 +46,9 @@ public sealed class DocumentService
             title,
             input["requester"]?.GetValue<string>()?.Trim() ?? "",
             md,
-            DateTime.UtcNow);
+            DateTime.UtcNow,
+            input["footer"]?.GetValue<string>(),
+            input["profileLabel"]?.GetValue<string>());
         _docs[doc.Id] = doc;
 
         var result = new JsonObject
@@ -86,12 +88,12 @@ public sealed class DocumentService
     <dl>
       <div><dt>Fecha</dt><dd>{{LocalDate(d.CreatedUtc)}}</dd></div>
       {{(d.Requester.Length > 0 ? $"<div><dt>Solicitante</dt><dd>{e(d.Requester)}</dd></div>" : "")}}
-      <div><dt>Perfil de plataforma</dt><dd>v{{e(ProfileVersion)}}</dd></div>
+      <div><dt>Perfil</dt><dd>{{e(d.ProfileLabel ?? $"Plataforma v{ProfileVersion}")}}</dd></div>
       <div><dt>Estado</dt><dd>Borrador para revisión de IT</dd></div>
     </dl>
   </header>
   <section class="doc-body">{{body}}</section>
-  <footer class="doc-foot">Generado por el Asesor de Plataforma. Precios de lista de Azure en USD, sin descuentos ni impuestos.</footer>
+  <footer class="doc-foot">{{e(d.Footer ?? DefaultFooter)}}</footer>
 </article>
 </body></html>
 """;
@@ -99,6 +101,7 @@ public sealed class DocumentService
 
     // ---------- Word (.docx) sin dependencias externas ----------
     private const string Navy = "00478E";
+    private const string DefaultFooter = "Generado por el Asesor de Plataforma. Precios de lista de Azure en USD, sin descuentos ni impuestos.";
 
     public byte[] ToDocx(RecommendationDoc d)
     {
@@ -109,7 +112,7 @@ public sealed class DocumentService
         body.Append(Para(d.Title, style: "Title"));
         var meta = $"Fecha: {LocalDate(d.CreatedUtc)}" +
                    (d.Requester.Length > 0 ? $"   ·   Solicitante: {d.Requester}" : "") +
-                   $"   ·   Perfil v{ProfileVersion}   ·   Borrador para revisión de IT";
+                   $"   ·   {d.ProfileLabel ?? $"Perfil v{ProfileVersion}"}   ·   Borrador para revisión de IT";
         body.Append(Para(meta, style: null, color: "5E6B78", size: 18));
         body.Append(RulePara());
 
@@ -137,7 +140,7 @@ public sealed class DocumentService
                     break;
             }
         }
-        body.Append(Para("Generado por el Asesor de Plataforma. Precios de lista de Azure en USD, sin descuentos ni impuestos.",
+        body.Append(Para(d.Footer ?? DefaultFooter,
             style: null, color: "5E6B78", size: 16, italic: true));
 
         var document = $"""
